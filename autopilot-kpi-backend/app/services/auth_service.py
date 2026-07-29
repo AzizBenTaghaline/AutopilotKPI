@@ -1,13 +1,22 @@
 from fastapi import HTTPException, status
-
+from datetime import datetime, timezone
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models.user import User
-from app.schemas.user import LoginRequest, TokenResponse, UserCreate, UserResponse, UserUpdate
-
+from app.schemas.user import (
+    LoginRequest,
+    RefreshRequest,
+    TokenResponse,
+    UserCreate,
+    UserResponse,
+    UserUpdate,
+)
+from app.models.refresh_token import RefreshToken
+from app.core.security import create_access_token, create_refresh_token, decode_token, hash_password, verify_password
 class AuthService:
     @staticmethod
     async def login(data: LoginRequest) -> TokenResponse:
         user = await User.find_one(User.email == data.email)
+
         if not user or not verify_password(data.password, user.hashed_password):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -20,10 +29,23 @@ class AuthService:
                 detail="Ce compte a été désactivé",
             )
 
-        token = create_access_token(subject=str(user.id), role=user.role.value)
+        return await AuthService._issue_tokens(user)
+
+    @staticmethod
+    async def _issue_tokens(user: User) -> TokenResponse:
+        access_token = create_access_token(subject=str(user.id), role=user.role.value)
+        refresh_token, jti, expires_at = create_refresh_token(subject=str(user.id))
+
+        await RefreshToken(
+            jti=jti,
+            user_id=str(user.id),
+            expires_at=expires_at,
+            created_at=datetime.now(timezone.utc),
+        ).insert()
 
         return TokenResponse(
-            access_token=token,
+            access_token=access_token,
+            refresh_token=refresh_token,
             user=UserResponse(
                 id=str(user.id),
                 email=user.email,
@@ -94,8 +116,6 @@ class AuthService:
         user = await User.get(user_id)
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Utilisateur introuvable")
-
-        # Seuls les champs réellement fournis sont modifiés (exclude_unset)
         updates = data.model_dump(exclude_unset=True)
         for field, value in updates.items():
             setattr(user, field, value)
@@ -110,3 +130,53 @@ class AuthService:
             is_active=user.is_active,
             created_at=user.created_at,
         )
+
+    @staticmethod
+    async def refresh(data: RefreshRequest) -> TokenResponse:
+        try:
+            payload = decode_token(data.refresh_token)
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Refresh token invalide ou expiré",
+            )
+
+        if payload.get("type") != "refresh":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Refresh token invalide",
+            )
+
+        jti = payload.get("jti")
+        stored = await RefreshToken.find_one(RefreshToken.jti == jti)
+
+        if not stored or stored.revoked:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Refresh token révoqué ou introuvable",
+            )
+
+        user = await User.get(payload.get("sub"))
+        if not user or not user.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Compte introuvable ou désactivé",
+            )
+
+        stored.revoked = True
+        await stored.save()
+
+        return await AuthService._issue_tokens(user)
+
+    @staticmethod
+    async def logout(data: RefreshRequest) -> None:
+        try:
+            payload = decode_token(data.refresh_token)
+        except Exception:
+            return 
+
+        jti = payload.get("jti")
+        stored = await RefreshToken.find_one(RefreshToken.jti == jti)
+        if stored:
+            stored.revoked = True
+            await stored.save()

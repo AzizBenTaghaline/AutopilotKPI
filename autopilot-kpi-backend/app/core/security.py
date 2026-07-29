@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime, timedelta, timezone
 
 from jose import jwt
@@ -20,10 +21,21 @@ def create_access_token(subject: str, role: str) -> str:
     expire = datetime.now(timezone.utc) + timedelta(
         minutes=settings.access_token_expire_minutes
     )
-    to_encode = {"sub": subject, "role": role, "exp": expire}
+    to_encode = {"sub": subject, "role": role, "type": "access", "exp": expire}
     return jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
 
 
-def decode_access_token(token: str) -> dict:
+def create_refresh_token(subject: str) -> tuple[str, str, datetime]:
 
+    jti = str(uuid.uuid4())
+    expire = datetime.now(timezone.utc) + timedelta(
+        days=settings.refresh_token_expire_days
+    )
+    to_encode = {"sub": subject, "type": "refresh", "jti": jti, "exp": expire}
+    token = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
+    return token, jti, expire
+
+
+def decode_token(token: str) -> dict:
+   
     return jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
