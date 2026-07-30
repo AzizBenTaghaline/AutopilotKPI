@@ -7,3 +7,7 @@ class UserRole(str, Enum):
     MANAGER = "manager"
     COMMERCIAL = "commercial"
     CHEF_ATELIER = "chef_atelier"
+
+class KpiModule(str, Enum):
+    COMMERCIAL = "commercial"
+    SAV = "sav"

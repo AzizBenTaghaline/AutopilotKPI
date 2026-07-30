@@ -4,10 +4,12 @@ from beanie import init_beanie
 from app.core.config import settings
 from app.models.user import User
 from app.models.refresh_token import RefreshToken
+from app.models.kpi import Kpi
 
 DOCUMENT_MODELS: list = [
     User,
     RefreshToken,
+    Kpi,
 ]
 
 
