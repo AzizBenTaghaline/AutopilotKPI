@@ -11,3 +11,11 @@ class UserRole(str, Enum):
 class KpiModule(str, Enum):
     COMMERCIAL = "commercial"
     SAV = "sav"
+
+class Periodicity(str, Enum):
+
+
+    DAILY = "daily"
+    WEEKLY = "weekly"
+    MONTHLY = "monthly"
+    FREE = "free" 

@@ -2,14 +2,14 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from app.models.enums import KpiModule
-
+from app.models.enums import KpiModule, Periodicity
 
 class KpiCreate(BaseModel):
     code: str
     name: str
     description: str
     module: KpiModule
+    periodicity: Periodicity
     unit: str
     target_value: float | None = None
 
@@ -29,6 +29,7 @@ class KpiResponse(BaseModel):
     name: str
     description: str
     module: KpiModule
+    periodicity: Periodicity
     unit: str
     target_value: float | None
     is_active: bool
