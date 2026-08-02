@@ -5,11 +5,13 @@ from app.core.config import settings
 from app.models.user import User
 from app.models.refresh_token import RefreshToken
 from app.models.kpi import Kpi
+from app.models.kpi_entry import KpiEntry
 
 DOCUMENT_MODELS: list = [
     User,
     RefreshToken,
     Kpi,
+    KpiEntry,
 ]
 
 
