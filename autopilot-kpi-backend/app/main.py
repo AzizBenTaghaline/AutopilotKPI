@@ -3,15 +3,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.core.database import init_db
-from app.routers import auth, users, kpi, kpi_entry
+from app.routers import auth, users, kpi, kpi_entry, dashboard
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
     yield
    
-
-
 app = FastAPI(
     title="AutoPilot KPI API",
     description="API de pilotage des indicateurs de performance (Commercial / SAV / Admin)",
@@ -29,3 +27,4 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(kpi.router)
 app.include_router(kpi_entry.router)
+app.include_router(dashboard.router)

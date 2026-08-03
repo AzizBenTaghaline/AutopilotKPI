@@ -6,7 +6,6 @@ from app.models.enums import KpiModule, UserRole
 from app.models.kpi import Kpi
 from app.schemas.kpi import KpiCreate, KpiResponse, KpiUpdate
 
-
 def _to_response(kpi: Kpi) -> KpiResponse:
     return KpiResponse(
         id=str(kpi.id),
@@ -14,6 +13,7 @@ def _to_response(kpi: Kpi) -> KpiResponse:
         name=kpi.name,
         description=kpi.description,
         module=kpi.module,
+        periodicity=kpi.periodicity,
         unit=kpi.unit,
         target_value=kpi.target_value,
         is_active=kpi.is_active,
