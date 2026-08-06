@@ -14,8 +14,8 @@ router = APIRouter(prefix="/users", tags=["Utilisateurs"])
     response_model=UserResponse,
     dependencies=[Depends(require_role(UserRole.ADMINISTRATEUR))],
 )
-async def create_user(data: UserCreate):
-    return await AuthService.create_user(data)
+async def create_user(data: UserCreate, current_user: User = Depends(get_current_user)):
+    return await AuthService.create_user(data, current_user)
 
 
 @router.get(
@@ -37,5 +37,5 @@ async def get_my_profile(current_user: User = Depends(get_current_user)):
     response_model=UserResponse,
     dependencies=[Depends(require_role(UserRole.ADMINISTRATEUR))],
 )
-async def update_user(user_id: str, data: UserUpdate):
-    return await AuthService.update_user(user_id, data)
+async def update_user(user_id: str, data: UserUpdate, current_user: User = Depends(get_current_user)):
+    return await AuthService.update_user(user_id, data, current_user)

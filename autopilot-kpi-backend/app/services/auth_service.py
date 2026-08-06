@@ -10,6 +10,7 @@ from app.schemas.user import (
     UserResponse,
     UserUpdate,
 )
+from app.services.audit_log_service import AuditLogService
 from app.models.refresh_token import RefreshToken
 from app.core.security import create_access_token, create_refresh_token, decode_token, hash_password, verify_password
 class AuthService:
@@ -57,8 +58,7 @@ class AuthService:
         )
 
     @staticmethod
-    async def create_user(data: UserCreate) -> UserResponse:
-
+    async def create_user(data: UserCreate, current_user: User) -> UserResponse:
         existing = await User.find_one(User.email == data.email)
         if existing:
             raise HTTPException(
@@ -74,6 +74,14 @@ class AuthService:
         )
         await user.insert()
 
+        await AuditLogService.log(
+            action="user_created",
+            entity_type="User",
+            entity_id=str(user.id),
+            performed_by=current_user,
+            details={"email": user.email, "role": user.role.value},
+        )
+
         return UserResponse(
             id=str(user.id),
             email=user.email,
@@ -82,6 +90,7 @@ class AuthService:
             is_active=user.is_active,
             created_at=user.created_at,
         )
+
     @staticmethod
     async def list_users() -> list[UserResponse]:
         users = await User.find_all().to_list()
@@ -112,15 +121,24 @@ class AuthService:
         )
 
     @staticmethod
-    async def update_user(user_id: str, data: UserUpdate) -> UserResponse:
+    async def update_user(user_id: str, data: UserUpdate, current_user: User) -> UserResponse:
         user = await User.get(user_id)
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Utilisateur introuvable")
+
         updates = data.model_dump(exclude_unset=True)
         for field, value in updates.items():
             setattr(user, field, value)
 
         await user.save()
+
+        await AuditLogService.log(
+            action="user_updated",
+            entity_type="User",
+            entity_id=str(user.id),
+            performed_by=current_user,
+            details=updates,
+        )
 
         return UserResponse(
             id=str(user.id),

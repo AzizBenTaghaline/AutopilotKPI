@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.core.database import init_db
-from app.routers import auth, users, kpi, kpi_entry, dashboard
+from app.routers import auth, users, kpi, kpi_entry, dashboard, audit_log
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -28,3 +28,4 @@ app.include_router(users.router)
 app.include_router(kpi.router)
 app.include_router(kpi_entry.router)
 app.include_router(dashboard.router)
+app.include_router(audit_log.router)

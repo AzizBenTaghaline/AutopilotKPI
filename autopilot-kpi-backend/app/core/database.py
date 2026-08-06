@@ -6,14 +6,15 @@ from app.models.user import User
 from app.models.refresh_token import RefreshToken
 from app.models.kpi import Kpi
 from app.models.kpi_entry import KpiEntry
+from app.models.audit_log import AuditLog
 
 DOCUMENT_MODELS: list = [
     User,
     RefreshToken,
     Kpi,
     KpiEntry,
+    AuditLog,
 ]
-
 
 async def init_db() -> None:
 

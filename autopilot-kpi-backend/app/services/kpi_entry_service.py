@@ -4,6 +4,7 @@ from app.models.enums import KpiModule, UserRole
 from app.models.kpi import Kpi
 from app.models.kpi_entry import KpiEntry
 from app.models.user import User
+from app.services.audit_log_service import AuditLogService
 from app.schemas.kpi_entry import KpiEntryCreate, KpiEntryResponse
 
 
@@ -56,6 +57,13 @@ class KpiEntryService:
             submitted_by=str(current_user.id),
         )
         await entry.insert()
+        await AuditLogService.log(
+            action="kpi_entry_created",
+            entity_type="KpiEntry",
+            entity_id=str(entry.id),
+            performed_by=current_user,
+            details={"kpi_code": kpi.code, "period": entry.period, "value": entry.value},
+        )
         return await _to_response(entry, kpi)
 
     @staticmethod

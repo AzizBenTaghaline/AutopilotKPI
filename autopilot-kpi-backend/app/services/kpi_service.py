@@ -5,6 +5,8 @@ from fastapi import HTTPException, status
 from app.models.enums import KpiModule, UserRole
 from app.models.kpi import Kpi
 from app.schemas.kpi import KpiCreate, KpiResponse, KpiUpdate
+from app.models.user import User
+from app.services.audit_log_service import AuditLogService
 
 def _to_response(kpi: Kpi) -> KpiResponse:
     return KpiResponse(
@@ -24,7 +26,7 @@ def _to_response(kpi: Kpi) -> KpiResponse:
 
 class KpiService:
     @staticmethod
-    async def create_kpi(data: KpiCreate, created_by: str) -> KpiResponse:
+    async def create_kpi(data: KpiCreate, current_user: User) -> KpiResponse:
         existing = await Kpi.find_one(Kpi.code == data.code)
         if existing:
             raise HTTPException(
@@ -32,8 +34,17 @@ class KpiService:
                 detail=f"Un KPI avec le code {data.code} existe déjà",
             )
 
-        kpi = Kpi(**data.model_dump(), created_by=created_by)
+        kpi = Kpi(**data.model_dump(), created_by=str(current_user.id))
         await kpi.insert()
+
+        await AuditLogService.log(
+            action="kpi_created",
+            entity_type="Kpi",
+            entity_id=str(kpi.id),
+            performed_by=current_user,
+            details={"code": kpi.code, "module": kpi.module.value},
+        )
+
         return _to_response(kpi)
 
     @staticmethod
@@ -60,7 +71,7 @@ class KpiService:
 
         return _to_response(kpi)
     @staticmethod
-    async def update_kpi(kpi_id: str, data: KpiUpdate) -> KpiResponse:
+    async def update_kpi(kpi_id: str, data: KpiUpdate, current_user: User) -> KpiResponse:
         kpi = await Kpi.get(kpi_id)
         if not kpi:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="KPI introuvable")
@@ -71,11 +82,29 @@ class KpiService:
         kpi.updated_at = datetime.now(timezone.utc)
 
         await kpi.save()
+
+        await AuditLogService.log(
+            action="kpi_updated",
+            entity_type="Kpi",
+            entity_id=str(kpi.id),
+            performed_by=current_user,
+            details=updates,
+        )
+
         return _to_response(kpi)
 
     @staticmethod
-    async def delete_kpi(kpi_id: str) -> None:
+    async def delete_kpi(kpi_id: str, current_user: User) -> None:
         kpi = await Kpi.get(kpi_id)
         if not kpi:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="KPI introuvable")
+
+        await AuditLogService.log(
+            action="kpi_deleted",
+            entity_type="Kpi",
+            entity_id=str(kpi.id),
+            performed_by=current_user,
+            details={"code": kpi.code},
+        )
+
         await kpi.delete()
