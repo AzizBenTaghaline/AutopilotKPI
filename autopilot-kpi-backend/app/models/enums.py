@@ -13,9 +13,11 @@ class KpiModule(str, Enum):
     SAV = "sav"
 
 class Periodicity(str, Enum):
-
-
     DAILY = "daily"
     WEEKLY = "weekly"
     MONTHLY = "monthly"
     FREE = "free" 
+
+class KpiDirection(str, Enum):
+    HIGHER_IS_BETTER = "higher_is_better"
+    LOWER_IS_BETTER = "lower_is_better"

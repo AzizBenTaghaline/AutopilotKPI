@@ -18,6 +18,7 @@ def _to_response(kpi: Kpi) -> KpiResponse:
         periodicity=kpi.periodicity,
         unit=kpi.unit,
         target_value=kpi.target_value,
+        direction=kpi.direction,
         is_active=kpi.is_active,
         created_by=kpi.created_by,
         created_at=kpi.created_at,

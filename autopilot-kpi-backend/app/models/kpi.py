@@ -1,8 +1,7 @@
 from datetime import datetime, timezone
 
 from beanie import Document, Indexed
-from app.models.enums import KpiModule, Periodicity
-
+from app.models.enums import KpiDirection, KpiModule, Periodicity
 
 class Kpi(Document):
     code: Indexed(str, unique=True)
@@ -11,6 +10,7 @@ class Kpi(Document):
     module: KpiModule
     periodicity: Periodicity
     unit: str  
+    direction: KpiDirection | None = None
     target_value: float | None = None
 
     is_active: bool = True  
