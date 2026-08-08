@@ -7,6 +7,7 @@ from app.models.refresh_token import RefreshToken
 from app.models.kpi import Kpi
 from app.models.kpi_entry import KpiEntry
 from app.models.audit_log import AuditLog
+from app.models.alert import Alert
 
 DOCUMENT_MODELS: list = [
     User,
@@ -14,6 +15,7 @@ DOCUMENT_MODELS: list = [
     Kpi,
     KpiEntry,
     AuditLog,
+    Alert,
 ]
 
 async def init_db() -> None:

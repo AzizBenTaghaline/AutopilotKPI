@@ -5,8 +5,7 @@ from app.models.kpi import Kpi
 from app.models.kpi_entry import KpiEntry
 from app.models.user import User
 from app.schemas.dashboard import DashboardItem
-from app.services.kpi_entry_service import _allowed_module_for
-
+from app.core.permissions import allowed_module_for
 
 def _current_period(periodicity: Periodicity) -> str | None:
     now = datetime.now(timezone.utc)
@@ -24,7 +23,7 @@ def _current_period(periodicity: Periodicity) -> str | None:
 class DashboardService:
     @staticmethod
     async def get_dashboard(current_user: User) -> list[DashboardItem]:
-        allowed_module = _allowed_module_for(current_user)
+        allowed_module = allowed_module_for(current_user)
 
         kpi_query = (
             Kpi.find(Kpi.is_active == True)

@@ -6,15 +6,8 @@ from app.models.kpi_entry import KpiEntry
 from app.models.user import User
 from app.services.audit_log_service import AuditLogService
 from app.schemas.kpi_entry import KpiEntryCreate, KpiEntryResponse
-
-
-def _allowed_module_for(current_user: User) -> KpiModule | None:
-    if current_user.role == UserRole.COMMERCIAL:
-        return KpiModule.COMMERCIAL
-    if current_user.role == UserRole.CHEF_ATELIER:
-        return KpiModule.SAV
-    return None
-
+from app.services.alert_service import AlertService
+from app.core.permissions import allowed_module_for
 
 async def _to_response(entry: KpiEntry, kpi: Kpi | None = None) -> KpiEntryResponse:
     if kpi is None:
@@ -42,7 +35,7 @@ class KpiEntryService:
                 detail="KPI introuvable ou inactif",
             )
 
-        allowed_module = _allowed_module_for(current_user)
+        allowed_module = allowed_module_for(current_user)
         if allowed_module is not None and kpi.module != allowed_module:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -64,6 +57,7 @@ class KpiEntryService:
             performed_by=current_user,
             details={"kpi_code": kpi.code, "period": entry.period, "value": entry.value},
         )
+        await AlertService.check_and_create_alert(kpi, entry)
         return await _to_response(entry, kpi)
 
     @staticmethod
@@ -72,7 +66,7 @@ class KpiEntryService:
         kpi_id: str | None = None,
         period: str | None = None,
     ) -> list[KpiEntryResponse]:
-        allowed_module = _allowed_module_for(current_user)
+        allowed_module = allowed_module_for(current_user)
         kpi_query = Kpi.find_all() if allowed_module is None else Kpi.find(Kpi.module == allowed_module)
         visible_kpis = {str(k.id): k for k in await kpi_query.to_list()}
 
