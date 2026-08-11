@@ -8,6 +8,9 @@ from app.models.kpi import Kpi
 from app.models.kpi_entry import KpiEntry
 from app.models.audit_log import AuditLog
 from app.models.alert import Alert
+from app.models.sav_retour import SavRetour
+from app.models.sav_reclamation import SavReclamation
+from app.models.event_com import EventCom
 
 DOCUMENT_MODELS: list = [
     User,
@@ -16,6 +19,9 @@ DOCUMENT_MODELS: list = [
     KpiEntry,
     AuditLog,
     Alert,
+    SavRetour,
+    SavReclamation,
+    EventCom,
 ]
 
 async def init_db() -> None:

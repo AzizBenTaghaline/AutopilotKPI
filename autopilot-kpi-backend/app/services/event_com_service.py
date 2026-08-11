@@ -38,6 +38,7 @@ class EventComService:
 
     @staticmethod
     async def get_stats() -> EventComStats:
+        """Correspond à getStats() du diagramme de classes."""
         events = await EventCom.find_all().to_list()
         total = len(events)
         total_participants = sum(e.nb_participants for e in events)

@@ -21,3 +21,8 @@ class Periodicity(str, Enum):
 class KpiDirection(str, Enum):
     HIGHER_IS_BETTER = "higher_is_better"
     LOWER_IS_BETTER = "lower_is_better"
+
+class ReclamationStatut(str, Enum):
+    OUVERTE = "ouverte"
+    EN_COURS = "en_cours"
+    RESOLUE = "resolue"
