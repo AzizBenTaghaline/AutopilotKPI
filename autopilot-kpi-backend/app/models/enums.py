@@ -25,4 +25,15 @@ class KpiDirection(str, Enum):
 class ReclamationStatut(str, Enum):
     OUVERTE = "ouverte"
     EN_COURS = "en_cours"
-    RESOLUE = "resolue"
+    RESOLUE = "resolue"      
+
+class ImportEntityType(str, Enum):
+    KPI_ENTRY = "kpi_entry"
+    SAV_RETOUR = "sav_retour"
+    SAV_RECLAMATION = "sav_reclamation"
+
+class ImportStatus(str, Enum):
+    PROCESSING = "processing"
+    SUCCESS = "success"       
+    PARTIAL = "partial"    
+    FAILED = "failed"         
