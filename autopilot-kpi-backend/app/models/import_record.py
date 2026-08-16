@@ -8,7 +8,7 @@ from app.models.enums import ImportEntityType, ImportStatus
 class Import(Document):
 
     nom_fichier: str
-    type_source: str  # "xlsx"
+    type_source: str  
     entity_type: ImportEntityType
 
     statut: ImportStatus = ImportStatus.PROCESSING
