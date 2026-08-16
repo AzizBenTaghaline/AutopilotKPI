@@ -9,7 +9,7 @@ export function AuthProvider({ children }) {
     return stored ? JSON.parse(stored) : null;
   });
 
-  async function login(email, password) {
+async function login(email, password) {
     const response = await apiClient.post("/auth/login", { email, password });
     const { access_token, refresh_token, user: userData } = response.data;
 
@@ -17,6 +17,7 @@ export function AuthProvider({ children }) {
     localStorage.setItem("refresh_token", refresh_token);
     localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
+    return userData; 
   }
 
   function logout() {

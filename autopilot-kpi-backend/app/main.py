@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-
+from fastapi.middleware.cors import CORSMiddleware
 from app.core.database import init_db
 from app.routers import auth, users, kpi, kpi_entry, dashboard, audit_log, alert, sav_retour, sav_reclamation, event_com, import_router
 @asynccontextmanager
@@ -14,6 +14,14 @@ app = FastAPI(
     description="API de pilotfrom app.routers import auth, users, kpi, kpi_entry, dashboard, audit_log, alert, sav_retour, sav_reclamation, event_comage des indicateurs de performance (Commercial / SAV / Admin)",
     version="0.1.0",
     lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
