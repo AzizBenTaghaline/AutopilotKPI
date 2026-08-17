@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthContext";
+import CommercialDashboard from "./pages/dashboards/CommercialDashboard";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import Login from "./pages/Login";
 import ManagerDashboard from "./pages/dashboards/ManagerDashboard";
@@ -21,11 +22,11 @@ function App() {
             }
           />
           <Route
-            path="/dashboard/commercial"
-            element={
-              <ProtectedRoute>
-                <div>Dashboard Commercial (à venir)</div>
-              </ProtectedRoute>
+           path="/dashboard/commercial"
+           element={
+            <ProtectedRoute>
+              <CommercialDashboard />
+            </ProtectedRoute>
             }
           />
           <Route

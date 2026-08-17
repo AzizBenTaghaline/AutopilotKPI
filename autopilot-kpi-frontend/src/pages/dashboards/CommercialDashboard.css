@@ -1,0 +1,146 @@
+.commercial-dashboard {
+  min-height: 100vh;
+  background: var(--bg-page);
+}
+
+/* Header réutilise les mêmes classes que ManagerDashboard.css
+   (.dashboard-header, .notif-bell, .avatar, etc.) - si tu veux éviter
+   la duplication, tu peux déplacer ces règles communes dans un fichier
+   src/styles/dashboard-shared.css importé par les deux pages. */
+.dashboard-header {
+  background: var(--bg-white);
+  padding: 24px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.dashboard-header h1 {
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.dashboard-subtitle {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}
+
+.dashboard-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.notif-bell {
+  position: relative;
+  color: var(--text-muted);
+}
+
+.notif-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--red);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 1px 5px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--navy-800);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dashboard-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: var(--text-muted);
+}
+
+/* --- Objectif du mois --- */
+.objective-card {
+  margin: 24px 32px 0;
+  background: var(--bg-white);
+  border-left: 4px solid var(--green);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 24px 28px;
+}
+
+.objective-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.objective-header h2 {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.objective-period {
+  background: var(--green-bg);
+  color: var(--green);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+.objective-bar-track {
+  height: 14px;
+  background: #eef1f5;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.objective-bar-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.objective-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.objective-footer strong {
+  font-size: 1.15rem;
+}
+
+.objective-remaining {
+  color: var(--green);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.objective-target {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.dashboard-empty {
+  margin: 24px 32px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
