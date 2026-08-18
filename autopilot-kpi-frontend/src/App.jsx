@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthContext";
 import CommercialDashboard from "./pages/dashboards/CommercialDashboard";
 import ProtectedRoute from "./auth/ProtectedRoute";
+import ChefAtelierDashboard from "./pages/dashboards/ChefAtelierDashboard";
+import AdminDashboard from "./pages/dashboards/AdminDashboard";
 import Login from "./pages/Login";
 import ManagerDashboard from "./pages/dashboards/ManagerDashboard";
 
@@ -22,18 +24,18 @@ function App() {
             }
           />
           <Route
-           path="/dashboard/commercial"
-           element={
-            <ProtectedRoute>
-              <CommercialDashboard />
-            </ProtectedRoute>
+            path="/dashboard/commercial"
+            element={
+              <ProtectedRoute>
+                <CommercialDashboard />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/dashboard/chef_atelier"
             element={
               <ProtectedRoute>
-                <div>Dashboard Chef d'atelier (à venir)</div>
+                <ChefAtelierDashboard />
               </ProtectedRoute>
             }
           />
@@ -41,7 +43,7 @@ function App() {
             path="/dashboard/administrateur"
             element={
               <ProtectedRoute>
-                <div>Dashboard Admin (à venir)</div>
+                <AdminDashboard />
               </ProtectedRoute>
             }
           />
