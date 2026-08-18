@@ -37,3 +37,8 @@ class ImportStatus(str, Enum):
     SUCCESS = "success"       
     PARTIAL = "partial"    
     FAILED = "failed"         
+
+class DevisStatut(str, Enum):
+    EN_COURS = "en_cours"
+    CONVERTI = "converti"
+    PERDU = "perdu"

@@ -12,6 +12,7 @@ from app.models.sav_retour import SavRetour
 from app.models.sav_reclamation import SavReclamation
 from app.models.event_com import EventCom
 from app.models.import_record import Import
+from app.models.devis import Devis
 
 DOCUMENT_MODELS: list = [
     User,
@@ -24,6 +25,7 @@ DOCUMENT_MODELS: list = [
     SavReclamation,
     EventCom,
     Import,
+    Devis,
 ]
 
 async def init_db() -> None:
