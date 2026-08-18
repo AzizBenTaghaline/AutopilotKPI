@@ -42,3 +42,7 @@ class DevisStatut(str, Enum):
     EN_COURS = "en_cours"
     CONVERTI = "converti"
     PERDU = "perdu"
+
+class OrdreReparationStatut(str, Enum):
+    NON_FACTURE = "non_facture"
+    FACTURE = "facture"

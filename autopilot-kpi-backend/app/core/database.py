@@ -13,6 +13,8 @@ from app.models.sav_reclamation import SavReclamation
 from app.models.event_com import EventCom
 from app.models.import_record import Import
 from app.models.devis import Devis
+from app.models.ordre_reparation import OrdreReparation
+from app.models.satisfaction_client import SatisfactionClient
 
 DOCUMENT_MODELS: list = [
     User,
@@ -26,8 +28,9 @@ DOCUMENT_MODELS: list = [
     EventCom,
     Import,
     Devis,
+    OrdreReparation,
+    SatisfactionClient,
 ]
-
 async def init_db() -> None:
 
     client = AsyncIOMotorClient(settings.mongo_uri)
