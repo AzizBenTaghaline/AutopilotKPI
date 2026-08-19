@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
 } from "recharts";
 import { Bell, Upload, Trophy, FileText, ChevronRight } from "lucide-react";
 import apiClient from "../../api/client";
@@ -17,16 +24,31 @@ export default function ManagerDashboard() {
   const [alerts, setAlerts] = useState([]);
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [devisRanking, setDevisRanking] = useState([]);
+  const [orStats, setOrStats] = useState(null);
+  const [satisfactionStats, setSatisfactionStats] = useState(null);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [dashboardRes, alertsRes] = await Promise.all([
+        const [
+          dashboardRes,
+          alertsRes,
+          rankingRes,
+          orStatsRes,
+          satisfactionRes,
+        ] = await Promise.all([
           apiClient.get("/dashboard"),
           apiClient.get("/alerts"),
+          apiClient.get("/devis/ranking/commerciaux"),
+          apiClient.get("/ordres-reparation/stats"),
+          apiClient.get("/satisfactions/stats"),
         ]);
         setDashboardItems(dashboardRes.data);
         setAlerts(alertsRes.data);
+        setDevisRanking(rankingRes.data);
+        setOrStats(orStatsRes.data);
+        setSatisfactionStats(satisfactionRes.data);
         await loadChartData(dashboardRes.data);
       } catch (err) {
         console.error("Erreur de chargement du dashboard", err);
@@ -45,8 +67,12 @@ export default function ManagerDashboard() {
     if (!comKpi && !savKpi) return;
 
     const [comEntries, savEntries] = await Promise.all([
-      comKpi ? apiClient.get(`/kpi-entries?kpi_id=${comKpi.kpi_id}`) : Promise.resolve({ data: [] }),
-      savKpi ? apiClient.get(`/kpi-entries?kpi_id=${savKpi.kpi_id}`) : Promise.resolve({ data: [] }),
+      comKpi
+        ? apiClient.get(`/kpi-entries?kpi_id=${comKpi.kpi_id}`)
+        : Promise.resolve({ data: [] }),
+      savKpi
+        ? apiClient.get(`/kpi-entries?kpi_id=${savKpi.kpi_id}`)
+        : Promise.resolve({ data: [] }),
     ]);
 
     // Ne garde que la saisie la plus récente par période (l'historique
@@ -61,23 +87,32 @@ export default function ManagerDashboard() {
 
     const comByPeriod = latestByPeriod(comEntries.data);
     const savByPeriod = latestByPeriod(savEntries.data);
-    const periods = [...new Set([...comByPeriod.keys(), ...savByPeriod.keys()])].sort();
+    const periods = [
+      ...new Set([...comByPeriod.keys(), ...savByPeriod.keys()]),
+    ].sort();
 
     setChartData(
       periods.map((period) => ({
         period,
         Commercial: comByPeriod.get(period) ?? null,
         SAV: savByPeriod.get(period) ?? null,
-      }))
+      })),
     );
   }
 
   const initials = user?.full_name
-    ? user.full_name.split(" ").map((p) => p[0]).join("").slice(0, 2).toUpperCase()
+    ? user.full_name
+        .split(" ")
+        .map((p) => p[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
     : "??";
 
   if (loading) {
-    return <div className="dashboard-loading">Chargement du tableau de bord...</div>;
+    return (
+      <div className="dashboard-loading">Chargement du tableau de bord...</div>
+    );
   }
 
   return (
@@ -86,14 +121,22 @@ export default function ManagerDashboard() {
         <div>
           <h1>Bonjour, {user?.full_name}</h1>
           <p className="dashboard-subtitle">
-            Manager — {new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+            Manager —{" "}
+            {new Date().toLocaleDateString("fr-FR", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
           </p>
         </div>
         <div className="dashboard-header-actions">
           <button className="period-select">Ce mois</button>
           <button className="notif-bell">
             <Bell size={20} />
-            {alerts.length > 0 && <span className="notif-badge">{alerts.length}</span>}
+            {alerts.length > 0 && (
+              <span className="notif-badge">{alerts.length}</span>
+            )}
           </button>
           <div className="avatar" onClick={logout} title="Se déconnecter">
             {initials}
@@ -103,8 +146,14 @@ export default function ManagerDashboard() {
 
       {alerts.length > 0 && (
         <div className="alert-banner">
-          <span>⚠ {alerts.length} alerte{alerts.length > 1 ? "s" : ""} active{alerts.length > 1 ? "s" : ""} nécessite{alerts.length > 1 ? "nt" : ""} votre attention</span>
-          <a href="#alerts-section">Voir les alertes <ChevronRight size={14} /></a>
+          <span>
+            ⚠ {alerts.length} alerte{alerts.length > 1 ? "s" : ""} active
+            {alerts.length > 1 ? "s" : ""} nécessite
+            {alerts.length > 1 ? "nt" : ""} votre attention
+          </span>
+          <a href="#alerts-section">
+            Voir les alertes <ChevronRight size={14} />
+          </a>
         </div>
       )}
 
@@ -113,14 +162,20 @@ export default function ManagerDashboard() {
           const missedTarget =
             item.has_entry &&
             item.target_value != null &&
-            ((item.direction === "higher_is_better" && item.current_value < item.target_value) ||
-              (item.direction === "lower_is_better" && item.current_value > item.target_value));
+            ((item.direction === "higher_is_better" &&
+              item.current_value < item.target_value) ||
+              (item.direction === "lower_is_better" &&
+                item.current_value > item.target_value));
 
           return (
             <StatCard
               key={item.kpi_id}
               label={item.kpi_name}
-              value={item.has_entry ? `${item.current_value} ${item.unit}` : "Aucune saisie"}
+              value={
+                item.has_entry
+                  ? `${item.current_value} ${item.unit}`
+                  : "Aucune saisie"
+              }
               accent={missedTarget ? "red" : "green"}
               trend={
                 item.has_entry && item.target_value != null
@@ -142,32 +197,99 @@ export default function ManagerDashboard() {
             <ResponsiveContainer width="100%" height={280}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey="period" stroke="var(--text-muted)" fontSize={12} />
+                <XAxis
+                  dataKey="period"
+                  stroke="var(--text-muted)"
+                  fontSize={12}
+                />
                 <YAxis stroke="var(--text-muted)" fontSize={12} />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="Commercial" stroke="var(--green)" strokeWidth={2} dot={{ r: 4 }} />
-                <Line type="monotone" dataKey="SAV" stroke="var(--orange)" strokeWidth={2} dot={{ r: 4 }} />
+                <Line
+                  type="monotone"
+                  dataKey="Commercial"
+                  stroke="var(--green)"
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="SAV"
+                  stroke="var(--orange)"
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                />
               </LineChart>
             </ResponsiveContainer>
           ) : (
-            <p className="chart-empty">Pas encore assez de données pour tracer une courbe.</p>
+            <p className="chart-empty">
+              Pas encore assez de données pour tracer une courbe.
+            </p>
           )}
         </div>
 
         <div className="alerts-panel" id="alerts-section">
-          <h2>Alertes actives {alerts.length > 0 && <span className="alerts-count">{alerts.length}</span>}</h2>
-          {alerts.length === 0 && <p className="alerts-empty">Aucune alerte active.</p>}
+          <h2>
+            Alertes actives{" "}
+            {alerts.length > 0 && (
+              <span className="alerts-count">{alerts.length}</span>
+            )}
+          </h2>
+          {alerts.length === 0 && (
+            <p className="alerts-empty">Aucune alerte active.</p>
+          )}
           {alerts.map((alert) => (
             <div className="alert-item" key={alert.id}>
               <strong>{alert.kpi_name}</strong>
               <p>
-                Valeur : {alert.actual_value} — Objectif : {alert.target_value} ({alert.period})
+                Valeur : {alert.actual_value} — Objectif : {alert.target_value}{" "}
+                ({alert.period})
               </p>
             </div>
           ))}
         </div>
       </section>
+
+      {orStats && (
+        <section className="manager-summary-grid">
+          <div className="summary-panel">
+            <h2>Meilleur commercial du mois</h2>
+            {devisRanking.length > 0 ? (
+              <div className="summary-highlight">
+                <strong>{devisRanking[0].full_name}</strong>
+                <span>
+                  {devisRanking[0].total_montant.toLocaleString("fr-FR")} DT —{" "}
+                  {devisRanking[0].nb_ventes} vente(s)
+                </span>
+              </div>
+            ) : (
+              <p className="summary-empty">
+                Aucune vente convertie ce mois-ci.
+              </p>
+            )}
+          </div>
+
+          <div className="summary-panel">
+            <h2>Atelier SAV</h2>
+            <div className="summary-row">
+              <span>OR ouverts</span>
+              <strong>{orStats.ouverts}</strong>
+            </div>
+            <div className="summary-row">
+              <span>Sous garantie</span>
+              <strong>{orStats.sous_garantie}</strong>
+            </div>
+            <div className="summary-row">
+              <span>Satisfaction client</span>
+              <strong>
+                {satisfactionStats.nb_saisies > 0
+                  ? `${satisfactionStats.moyenne}%`
+                  : "—"}
+              </strong>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="quick-actions">
         <button className="quick-action primary">
