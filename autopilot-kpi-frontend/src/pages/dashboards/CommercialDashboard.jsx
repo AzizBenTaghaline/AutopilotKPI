@@ -8,17 +8,23 @@ export default function CommercialDashboard() {
   const { user, logout } = useAuth();
   const [dashboardItems, setDashboardItems] = useState([]);
   const [alerts, setAlerts] = useState([]);
+  const [devis, setDevis] = useState([]);
+  const [ranking, setRanking] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [dashboardRes, alertsRes] = await Promise.all([
+        const [dashboardRes, alertsRes, devisRes, rankingRes] = await Promise.all([
           apiClient.get("/dashboard"),
           apiClient.get("/alerts"),
+          apiClient.get("/devis"),
+          apiClient.get("/devis/ranking/commerciaux"),
         ]);
         setDashboardItems(dashboardRes.data);
         setAlerts(alertsRes.data);
+        setDevis(devisRes.data);
+        setRanking(rankingRes.data);
       } catch (err) {
         console.error("Erreur de chargement du dashboard", err);
       } finally {
@@ -33,6 +39,16 @@ export default function CommercialDashboard() {
     : "??";
 
   const mainObjective = dashboardItems.find((i) => i.target_value != null);
+
+  // "Ce mois" : filtre les devis dont la date correspond au mois en cours
+  const currentMonth = new Date().toISOString().slice(0, 7); // "2026-08"
+  const devisThisMonth = devis.filter((d) => d.date_devis.slice(0, 7) === currentMonth);
+  const convertedThisMonth = devisThisMonth.filter((d) => d.statut === "converti");
+  const tauxTransformation =
+    devisThisMonth.length > 0 ? Math.round((convertedThisMonth.length / devisThisMonth.length) * 100) : 0;
+
+  const myPosition = ranking.findIndex((r) => r.is_current_user) + 1; // 0 si absent du classement
+  const medal = myPosition === 1 ? "🥇" : myPosition === 2 ? "🥈" : myPosition === 3 ? "🥉" : null;
 
   if (loading) {
     return <div className="dashboard-loading">Chargement...</div>;
@@ -87,6 +103,51 @@ export default function CommercialDashboard() {
       ) : (
         <p className="dashboard-empty">Aucun KPI avec objectif défini pour votre module.</p>
       )}
+
+      <section className="commercial-grid">
+        <div className="panel">
+          <span className="panel-label">Mes devis ce mois</span>
+          <strong className="panel-big-value">{devisThisMonth.length} devis</strong>
+          {devisThisMonth.length > 0 ? (
+            <>
+              <div className="taux-transfo-bar">
+                <span>Taux de transformation</span>
+                <strong>{tauxTransformation}%</strong>
+              </div>
+              <p className="panel-note">{convertedThisMonth.length} devis convertis en vente</p>
+            </>
+          ) : (
+            <p className="panel-note">Aucun devis saisi ce mois-ci.</p>
+          )}
+        </div>
+
+        <div className="panel">
+          <span className="panel-label">Mon classement</span>
+          {ranking.length === 0 ? (
+            <p className="panel-note">Aucune vente convertie ce mois-ci pour établir un classement.</p>
+          ) : (
+            <>
+              {myPosition > 0 ? (
+                <div className="ranking-badge">
+                  {medal ?? `#${myPosition}`}
+                  {!medal && <sup>e</sup>}
+                </div>
+              ) : (
+                <p className="panel-note">Vous n'avez pas encore de vente ce mois-ci.</p>
+              )}
+              <p className="panel-note">sur {ranking.length} commercial{ranking.length > 1 ? "aux" : ""} ce mois</p>
+              <ul className="ranking-list">
+                {ranking.slice(0, 5).map((r, i) => (
+                  <li key={r.user_id} className={r.is_current_user ? "me" : ""}>
+                    <span>{i + 1}. {r.full_name}</span>
+                    <strong>{r.total_montant.toLocaleString("fr-FR")} DT</strong>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

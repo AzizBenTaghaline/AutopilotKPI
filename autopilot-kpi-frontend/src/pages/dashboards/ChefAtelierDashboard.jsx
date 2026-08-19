@@ -11,21 +11,28 @@ export default function ChefAtelierDashboard() {
   const [alerts, setAlerts] = useState([]);
   const [retoursOuverts, setRetoursOuverts] = useState([]);
   const [reclamations, setReclamations] = useState([]);
+  const [orStats, setOrStats] = useState(null);
+  const [satisfactionStats, setSatisfactionStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [dashboardRes, alertsRes, retoursRes, reclamationsRes] = await Promise.all([
-          apiClient.get("/dashboard"),
-          apiClient.get("/alerts"),
-          apiClient.get("/sav-retours?cloture=false"),
-          apiClient.get("/sav-reclamations"),
-        ]);
+        const [dashboardRes, alertsRes, retoursRes, reclamationsRes, orStatsRes, satisfactionRes] =
+          await Promise.all([
+            apiClient.get("/dashboard"),
+            apiClient.get("/alerts"),
+            apiClient.get("/sav-retours?cloture=false"),
+            apiClient.get("/sav-reclamations"),
+            apiClient.get("/ordres-reparation/stats"),
+            apiClient.get("/satisfactions/stats"),
+          ]);
         setDashboardItems(dashboardRes.data);
         setAlerts(alertsRes.data);
         setRetoursOuverts(retoursRes.data);
-        setReclamations(reclamationsRes.data.slice(0, 5)); 
+        setReclamations(reclamationsRes.data.slice(0, 5));
+        setOrStats(orStatsRes.data);
+        setSatisfactionStats(satisfactionRes.data);
       } catch (err) {
         console.error("Erreur de chargement du dashboard", err);
       } finally {
@@ -62,6 +69,36 @@ export default function ChefAtelierDashboard() {
           </div>
         </div>
       </header>
+
+      {orStats && (
+        <section className="or-satisfaction-grid">
+          <div className="panel or-panel">
+            <span className="panel-label">OR ouverts</span>
+            <strong className="panel-big-value">{orStats.ouverts}</strong>
+            <p className="panel-note">
+              dont <strong>{orStats.sous_garantie}</strong> sous garantie
+            </p>
+          </div>
+
+          <div className="panel satisfaction-panel">
+            <span className="panel-label">Satisfaction client</span>
+            {satisfactionStats.nb_saisies > 0 ? (
+              <>
+                <strong className="panel-big-value">{satisfactionStats.moyenne}%</strong>
+                <p className="panel-note">Basé sur {satisfactionStats.nb_saisies} saisie(s)</p>
+              </>
+            ) : (
+              <p className="panel-note">Aucune saisie de satisfaction pour l'instant.</p>
+            )}
+          </div>
+
+          <div className="panel">
+            <span className="panel-label">Retours non clôturés</span>
+            <strong className="panel-big-value">{retoursOuverts.length}</strong>
+            <p className="panel-note">Retours en attente de traitement</p>
+          </div>
+        </section>
+      )}
 
       {dashboardItems.length > 0 && (
         <section className="stats-grid">
