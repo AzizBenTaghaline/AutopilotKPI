@@ -29,7 +29,8 @@ class AuthService:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Ce compte a été désactivé",
             )
-
+        user.last_login = datetime.now(timezone.utc)
+        await user.save()
         return await AuthService._issue_tokens(user)
 
     @staticmethod
@@ -54,6 +55,7 @@ class AuthService:
                 role=user.role,
                 is_active=user.is_active,
                 created_at=user.created_at,
+                last_login=user.last_login,
             ),
         )
 
@@ -89,6 +91,7 @@ class AuthService:
             role=user.role,
             is_active=user.is_active,
             created_at=user.created_at,
+            last_login=user.last_login,
         )
 
     @staticmethod
@@ -102,6 +105,7 @@ class AuthService:
                 role=u.role,
                 is_active=u.is_active,
                 created_at=u.created_at,
+                last_login=u.last_login,
             )
             for u in users
         ]
@@ -118,6 +122,7 @@ class AuthService:
             role=user.role,
             is_active=user.is_active,
             created_at=user.created_at,
+            last_login=user.last_login,
         )
 
     @staticmethod
@@ -147,6 +152,7 @@ class AuthService:
             role=user.role,
             is_active=user.is_active,
             created_at=user.created_at,
+            last_login=user.last_login,
         )
 
     @staticmethod

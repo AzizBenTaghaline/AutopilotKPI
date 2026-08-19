@@ -15,6 +15,7 @@ class User(Document):
     role: UserRole
 
     is_active: bool = True 
+    last_login: datetime | None = None
 
     created_at: datetime = datetime.now(timezone.utc)
     updated_at: datetime = datetime.now(timezone.utc)
