@@ -46,3 +46,8 @@ class DevisStatut(str, Enum):
 class OrdreReparationStatut(str, Enum):
     NON_FACTURE = "non_facture"
     FACTURE = "facture"
+
+class EventComType(str, Enum):
+    SALON = "salon"
+    INTERNE = "interne"
+    CAMPAGNE = "campagne"

@@ -1,0 +1,151 @@
+.eventcom-section {
+  background: var(--bg-white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+  margin: 0 32px;
+}
+
+.eventcom-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.eventcom-header h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.eventcom-subtitle {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 2px;
+}
+
+.eventcom-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--green-bg);
+  color: var(--green);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.eventcom-form {
+  background: #f8f9fb;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.eventcom-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.eventcom-form-row input,
+.eventcom-form-row select {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.eventcom-form-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.eventcom-error {
+  color: var(--red);
+  font-size: 0.85rem;
+}
+
+.eventcom-submit {
+  background: var(--navy-800);
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  align-self: flex-start;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.eventcom-submit:disabled {
+  opacity: 0.6;
+}
+
+.eventcom-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.eventcom-empty {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  grid-column: 1 / -1;
+}
+
+.eventcom-card {
+  background: #f8f9fb;
+  border-radius: 10px;
+  padding: 18px;
+  border-top: 3px solid var(--border);
+}
+
+.eventcom-card-top {
+  margin-bottom: 10px;
+}
+
+.eventcom-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 3px 10px;
+  border-radius: 6px;
+}
+
+.badge-salon { background: #e0e7ff; color: #4338ca; }
+.badge-interne { background: var(--green-bg); color: var(--green); }
+.badge-campagne { background: var(--red-bg); color: var(--red); }
+
+.eventcom-card h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.eventcom-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+}
+
+.eventcom-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}

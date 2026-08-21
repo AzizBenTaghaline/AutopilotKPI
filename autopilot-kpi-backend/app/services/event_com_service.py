@@ -8,13 +8,14 @@ def _to_response(e: EventCom) -> EventComResponse:
     return EventComResponse(
         id=str(e.id),
         titre=e.titre,
+        type=e.type,
         lieu=e.lieu,
-        date_evenement=e.date_evenement,
+        date_debut=e.date_debut,
+        date_fin=e.date_fin,
         nb_participants=e.nb_participants,
         created_by=e.created_by,
         created_at=e.created_at,
     )
-
 
 class EventComService:
     @staticmethod
@@ -33,7 +34,7 @@ class EventComService:
 
     @staticmethod
     async def list_all() -> list[EventComResponse]:
-        events = await EventCom.find_all().sort(-EventCom.date_evenement).to_list()
+        events = await EventCom.find_all().sort(-EventCom.date_debut).to_list()
         return [_to_response(e) for e in events]
 
     @staticmethod

@@ -2,27 +2,31 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
+from app.models.enums import EventComType
+
 
 class EventComCreate(BaseModel):
     titre: str
+    type: EventComType
     lieu: str
-    date_evenement: datetime
+    date_debut: datetime
+    date_fin: datetime | None = None
     nb_participants: int
 
 
 class EventComResponse(BaseModel):
     id: str
     titre: str
+    type: EventComType
     lieu: str
-    date_evenement: datetime
+    date_debut: datetime
+    date_fin: datetime | None
     nb_participants: int
     created_by: str
     created_at: datetime
 
 
 class EventComStats(BaseModel):
-    """Correspond à getStats() du diagramme de classes."""
-
     total_evenements: int
     total_participants: int
     moyenne_participants: float
