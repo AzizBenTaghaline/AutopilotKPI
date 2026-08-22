@@ -224,7 +224,19 @@ export default function CommercialDashboard() {
         </div>
       </section>
       <EventComSection events={events} onEventCreated={reloadEvents} />
-      <ExcelImportSection imports={imports} onImportDone={reloadImports} />
+      <ExcelImportSection
+        title="Importer données Excel"
+        subtitle="Fichiers KPI Commercial — ventes, devis, objectifs"
+        importTypes={[
+          {
+            value: "kpi_entries",
+            label: "KPI Commercial",
+            endpoint: "/imports/kpi-entries",
+          },
+        ]}
+        imports={imports}
+        onImportDone={reloadImports}
+      />
     </div>
   );
 }

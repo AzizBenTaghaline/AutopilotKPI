@@ -3,11 +3,14 @@ import { Upload, FileText, Check, X as XIcon, Clock } from "lucide-react";
 import apiClient from "../api/client";
 import "./ExcelImportSection.css";
 
-export default function ExcelImportSection({ imports, onImportDone }) {
+export default function ExcelImportSection({ title, subtitle, importTypes, imports, onImportDone }) {
+  const [selectedType, setSelectedType] = useState(importTypes[0].value);
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef(null);
+
+  const currentEndpoint = importTypes.find((t) => t.value === selectedType)?.endpoint;
 
   async function handleFile(file) {
     if (!file) return;
@@ -16,7 +19,7 @@ export default function ExcelImportSection({ imports, onImportDone }) {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      await apiClient.post("/imports/kpi-entries", formData, {
+      await apiClient.post(currentEndpoint, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       onImportDone();
@@ -40,13 +43,28 @@ export default function ExcelImportSection({ imports, onImportDone }) {
         <div className="import-dropzone-col">
           <div className="import-header">
             <div>
-              <h2>Importer données Excel</h2>
-              <p className="import-subtitle">Fichiers KPI Commercial — ventes, devis, objectifs</p>
+              <h2>{title}</h2>
+              <p className="import-subtitle">{subtitle}</p>
             </div>
             <span className="import-format-badge">
               <FileText size={14} /> Format Excel
             </span>
           </div>
+
+          {importTypes.length > 1 && (
+            <div className="import-type-selector">
+              {importTypes.map((t) => (
+                <button
+                  key={t.value}
+                  type="button"
+                  className={`import-type-tab ${selectedType === t.value ? "active" : ""}`}
+                  onClick={() => setSelectedType(t.value)}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div
             className={`import-dropzone ${dragActive ? "active" : ""}`}
