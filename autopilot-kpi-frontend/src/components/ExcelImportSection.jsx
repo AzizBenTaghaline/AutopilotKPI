@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { Upload, FileText, Check, X as XIcon, Clock } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Upload, FileText, Check, X as XIcon, Clock, Download, Info } from "lucide-react";
 import apiClient from "../api/client";
 import "./ExcelImportSection.css";
 
@@ -8,9 +8,26 @@ export default function ExcelImportSection({ title, subtitle, importTypes, impor
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [format, setFormat] = useState(null);
   const fileInputRef = useRef(null);
 
-  const currentEndpoint = importTypes.find((t) => t.value === selectedType)?.endpoint;
+  const currentType = importTypes.find((t) => t.value === selectedType);
+
+  useEffect(() => {
+    async function loadFormat() {
+      if (!currentType?.formatEndpoint) {
+        setFormat(null);
+        return;
+      }
+      try {
+        const res = await apiClient.get(currentType.formatEndpoint);
+        setFormat(res.data);
+      } catch {
+        setFormat(null);
+      }
+    }
+    loadFormat();
+  }, [selectedType]);
 
   async function handleFile(file) {
     if (!file) return;
@@ -19,7 +36,7 @@ export default function ExcelImportSection({ title, subtitle, importTypes, impor
     try {
       const formData = new FormData();
       formData.append("file", file);
-      await apiClient.post(currentEndpoint, formData, {
+      await apiClient.post(currentType.endpoint, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       onImportDone();
@@ -35,6 +52,17 @@ export default function ExcelImportSection({ title, subtitle, importTypes, impor
     setDragActive(false);
     const file = e.dataTransfer.files?.[0];
     handleFile(file);
+  }
+
+  async function handleDownloadTemplate() {
+    if (!currentType?.templateEndpoint) return;
+    const res = await apiClient.get(currentType.templateEndpoint, { responseType: "blob" });
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "modele_import.xlsx";
+    link.click();
+    window.URL.revokeObjectURL(url);
   }
 
   return (
@@ -63,6 +91,37 @@ export default function ExcelImportSection({ title, subtitle, importTypes, impor
                   {t.label}
                 </button>
               ))}
+            </div>
+          )}
+
+          {format && (
+            <div className="import-format-info">
+              <div className="import-format-info-header">
+                <Info size={14} />
+                <span>Colonnes attendues</span>
+              </div>
+              <div className="import-columns-tags">
+                {format.colonnes.map((c) => (
+                  <span key={c.nom} className={`import-column-tag ${c.obligatoire ? "required" : ""}`} title={c.description}>
+                    {c.nom}{c.obligatoire ? "" : " (optionnel)"}
+                  </span>
+                ))}
+              </div>
+
+              {format.kpis_disponibles.length > 0 ? (
+                <>
+                  <p className="import-format-note">Noms de KPI acceptés pour votre rôle :</p>
+                  <ul className="import-kpi-list">
+                    {format.kpis_disponibles.map((k) => (
+                      <li key={k.nom}>
+                        <strong>{k.nom}</strong> — {k.unite}, saisie {k.periodicite}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <p className="import-format-note">Aucun KPI disponible pour votre rôle actuellement.</p>
+              )}
             </div>
           )}
 

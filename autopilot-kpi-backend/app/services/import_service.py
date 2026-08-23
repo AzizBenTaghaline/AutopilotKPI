@@ -3,6 +3,7 @@ from io import BytesIO
 
 from fastapi import HTTPException, UploadFile
 from openpyxl import load_workbook
+from app.core.permissions import allowed_module_for
 
 from app.models.enums import ImportEntityType, ImportStatus, UserRole
 from app.models.import_record import Import
@@ -84,15 +85,22 @@ class ImportService:
         )
         await record.insert()
 
+        allowed_module = allowed_module_for(current_user)
+        kpi_query = Kpi.find_all() if allowed_module is None else Kpi.find(Kpi.module == allowed_module)
+        visible_kpis = await kpi_query.to_list()
+        kpis_by_name = {k.name.strip().lower(): k for k in visible_kpis}
+
         errors = []
         success_count = 0
 
-        for i, row in enumerate(rows, start=2):  # ligne 2 = 1ère ligne de données
+        for i, row in enumerate(rows, start=2):
             try:
-                code = str(row.get("code_kpi", "")).strip()
-                kpi = await Kpi.find_one(Kpi.code == code)
+                raw_name = str(row.get("nom_kpi", "")).strip()
+                kpi = kpis_by_name.get(raw_name.lower())
                 if not kpi:
-                    raise ValueError(f"KPI introuvable avec le code '{code}'")
+                    raise ValueError(
+                        f"KPI introuvable ou non autorisé pour votre rôle : '{raw_name}'"
+                    )
 
                 comment = row.get("commentaire")
                 data = KpiEntryCreate(
@@ -203,3 +211,39 @@ class ImportService:
 
         records = await query.sort(-Import.created_at).to_list()
         return [_to_response(r) for r in records]
+    @staticmethod
+    async def get_kpi_import_format(current_user: User) -> dict:
+        allowed_module = allowed_module_for(current_user)
+        kpi_query = Kpi.find_all() if allowed_module is None else Kpi.find(Kpi.module == allowed_module)
+        kpis = await kpi_query.to_list()
+
+        return {
+            "colonnes": [
+                {"nom": "nom_kpi", "obligatoire": True, "description": "Nom exact du KPI (voir liste ci-dessous)"},
+                {"nom": "valeur", "obligatoire": True, "description": "Valeur numérique saisie"},
+                {"nom": "periode", "obligatoire": True, "description": "Période (format dépend de la périodicité du KPI)"},
+                {"nom": "commentaire", "obligatoire": False, "description": "Note libre"},
+            ],
+            "kpis_disponibles": [
+                {"nom": k.name, "unite": k.unit, "periodicite": k.periodicity.value} for k in kpis
+            ],
+        }
+
+    @staticmethod
+    async def generate_kpi_import_template(current_user: User) -> bytes:
+        from openpyxl import Workbook
+
+        allowed_module = allowed_module_for(current_user)
+        kpi_query = Kpi.find_all() if allowed_module is None else Kpi.find(Kpi.module == allowed_module)
+        kpis = await kpi_query.to_list()
+
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Import KPI"
+        ws.append(["nom_kpi", "valeur", "periode", "commentaire"])
+        for k in kpis:
+            ws.append([k.name, "", "", ""])
+
+        buffer = BytesIO()
+        wb.save(buffer)
+        return buffer.getvalue()

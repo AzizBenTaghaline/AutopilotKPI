@@ -243,6 +243,13 @@ export default function ChefAtelierDashboard() {
         subtitle="Fichiers SAV — retours et réclamations clients"
         importTypes={[
           {
+            value: "kpi_entries",
+            label: "KPI SAV",
+            endpoint: "/imports/kpi-entries",
+            formatEndpoint: "/imports/kpi-entries/format",
+            templateEndpoint: "/imports/kpi-entries/template",
+          },
+          {
             value: "sav_retours",
             label: "Retours SAV",
             endpoint: "/imports/sav-retours",

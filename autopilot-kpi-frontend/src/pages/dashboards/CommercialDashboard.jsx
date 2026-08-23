@@ -232,6 +232,8 @@ export default function CommercialDashboard() {
             value: "kpi_entries",
             label: "KPI Commercial",
             endpoint: "/imports/kpi-entries",
+            formatEndpoint: "/imports/kpi-entries/format",
+            templateEndpoint: "/imports/kpi-entries/template",
           },
         ]}
         imports={imports}
