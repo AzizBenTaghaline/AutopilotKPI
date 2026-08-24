@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   LineChart,
   Line,
@@ -10,6 +9,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { useNavigate } from "react-router-dom";
 import { Bell, Upload, Trophy, FileText, ChevronRight } from "lucide-react";
 import apiClient from "../../api/client";
 import { useAuth } from "../../auth/AuthContext";
@@ -300,6 +300,12 @@ export default function ManagerDashboard() {
         </button>
         <button className="quick-action">
           <FileText size={18} /> Rapport mensuel
+        </button>
+        <button
+          className="quick-action"
+          onClick={() => navigate("/kpi-management")}
+        >
+          Configurer les KPI
         </button>
       </section>
     </div>
