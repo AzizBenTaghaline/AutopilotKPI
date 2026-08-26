@@ -115,3 +115,21 @@
 
 .statut-dot.active { background: var(--green); }
 .statut-dot.inactive { background: var(--text-faint); }
+
+.admin-quick-actions {
+  display: flex;
+  gap: 12px;
+  padding: 24px 32px 32px;
+}
+
+.admin-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--navy-800);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}

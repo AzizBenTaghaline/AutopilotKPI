@@ -5,6 +5,7 @@ import { useAuth } from "../../auth/AuthContext";
 import "./CommercialDashboard.css";
 import EventComSection from "../../components/EventComSection";
 import ExcelImportSection from "../../components/ExcelImportSection";
+import StatCard from "../../components/StatCard";
 
 export default function CommercialDashboard() {
   const { user, logout } = useAuth();
@@ -163,7 +164,42 @@ export default function CommercialDashboard() {
           Aucun KPI avec objectif défini pour votre module.
         </p>
       )}
+      {dashboardItems.length > 1 && (
+        <section className="stats-grid">
+          {dashboardItems
+            .filter((item) => item.kpi_id !== mainObjective?.kpi_id) // évite de doublonner le KPI déjà affiché ci-dessus
+            .map((item) => {
+              const missedTarget =
+                item.has_entry &&
+                item.target_value != null &&
+                ((item.direction === "higher_is_better" &&
+                  item.current_value < item.target_value) ||
+                  (item.direction === "lower_is_better" &&
+                    item.current_value > item.target_value));
 
+              return (
+                <StatCard
+                  key={item.kpi_id}
+                  label={item.kpi_name}
+                  value={
+                    item.has_entry
+                      ? `${item.current_value} ${item.unit}`
+                      : "Aucune saisie"
+                  }
+                  accent={missedTarget ? "red" : "green"}
+                  trend={
+                    item.has_entry && item.target_value != null
+                      ? {
+                          direction: missedTarget ? "down" : "up",
+                          text: `Objectif : ${item.target_value} ${item.unit}`,
+                        }
+                      : null
+                  }
+                />
+              );
+            })}
+        </section>
+      )}
       <section className="commercial-grid">
         <div className="panel">
           <span className="panel-label">Mes devis ce mois</span>

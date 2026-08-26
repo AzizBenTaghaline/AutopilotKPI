@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Shield } from "lucide-react";
+import { Shield, BarChart3, User as UserIcon } from "lucide-react";
 import apiClient from "../../api/client";
 import { useAuth } from "../../auth/AuthContext";
 import StatCard from "../../components/StatCard";
@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [imports, setImports] = useState([]);
   const [kpis, setKpis] = useState([]);
@@ -181,6 +182,12 @@ export default function AdminDashboard() {
           onClick={() => navigate("/kpi-management")}
         >
           Configurer les KPI
+        </button>
+        <button
+          className="admin-action-btn"
+          onClick={() => navigate("/user-management")}
+        >
+          <UserIcon size={18} /> Gérer les utilisateurs
         </button>
       </div>
     </div>

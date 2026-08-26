@@ -127,10 +127,6 @@ export default function Login() {
             {loading ? "Connexion..." : "Se connecter"}
             <ChevronRight size={18} />
           </button>
-
-          <a href="#" className="login-forgot">
-            Mot de passe oublié ?
-          </a>
         </form>
 
         <p className="login-footer-note">

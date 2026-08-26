@@ -6,6 +6,7 @@ import ChefAtelierDashboard from "./pages/dashboards/ChefAtelierDashboard";
 import AdminDashboard from "./pages/dashboards/AdminDashboard";
 import Login from "./pages/Login";
 import KpiManagement from "./pages/KpiManagement";
+import UserManagement from "./pages/UserManagement";
 import ManagerDashboard from "./pages/dashboards/ManagerDashboard";
 
 function App() {
@@ -53,6 +54,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={["administrateur", "manager"]}>
                 <KpiManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/user-management"
+            element={
+              <ProtectedRoute allowedRoles={["administrateur"]}>
+                <UserManagement />
               </ProtectedRoute>
             }
           />

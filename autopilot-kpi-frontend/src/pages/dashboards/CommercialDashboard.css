@@ -221,3 +221,10 @@
   background: var(--green-bg);
   font-weight: 700;
 }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  padding: 24px 32px 0;
+}
