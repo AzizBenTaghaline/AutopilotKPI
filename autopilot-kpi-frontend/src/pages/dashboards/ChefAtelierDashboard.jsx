@@ -64,7 +64,7 @@ export default function ChefAtelierDashboard() {
     ]);
     setImports(
       importsRes.data.filter((i) =>
-        ["sav_retour", "sav_reclamation"].includes(i.entity_type),
+        ["kpi_entry", "sav_retour", "sav_reclamation"].includes(i.entity_type),
       ),
     );
     setRetoursOuverts(retoursRes.data);
